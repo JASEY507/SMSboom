@@ -6,7 +6,7 @@ import re
 from time import sleep
 from os import system
 
-# Gerekli modüller listesi
+# Gerekli modüller
 required_modules = ["colorama", "tqdm"]
 for module in required_modules:
     try:
@@ -15,20 +15,17 @@ for module in required_modules:
         print(f"{module} modülü yüklü değil, yükleniyor...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", module])
 
-# Şimdi importları yapıyoruz
 from colorama import init, Fore, Style
 from tqdm import tqdm
-from sms import SendSms  # sms.py dosyan olmalı
+from sms import SendSms  # sms.py aynı klasörde olmalı
 
-# Colorama başlatma
 init()
 
-# Yapımcı bilgileri
 YAPIMCI = "soytariomer.17"
 INSTAGRAM = "omer.17___"
 
-# SendSms sınıfındaki servisleri dinamik olarak çekme
-servisler_sms = [attr for attr in dir(SendSms) if callable(getattr(SendSms, attr)) and not attr.startswith('__')]
+# Servisleri dinamik çek
+servisler_sms = [attr for attr in dir(SendSms) if callable(getattr(SendSms, attr)) and not attr.startswith("__")]
 
 def clear_screen():
     system("cls" if os.name == "nt" else "clear")
@@ -46,13 +43,12 @@ def print_banner():
     print(banner)
 
 def validate_phone(phone):
-    """Telefon numarasını doğrula: 10 haneli ve sadece rakam."""
+    phone = phone.strip()
     if not phone.isdigit() or len(phone) != 10:
         raise ValueError("Telefon numarası 10 haneli olmalı ve sadece rakamlardan oluşmalı!")
     return phone
 
 def validate_email(email):
-    """E-posta adresini doğrula: basit regex kontrolü."""
     if email == "":
         return email
     if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
@@ -60,10 +56,8 @@ def validate_email(email):
     return email
 
 def validate_number_input(prompt, allow_empty=False):
-    """Sayısal girişi doğrula."""
     while True:
-        print(f"{Fore.LIGHTYELLOW_EX}{prompt}{Style.RESET_ALL}", end="")
-        value = input()
+        value = input(f"{Fore.LIGHTYELLOW_EX}{prompt}{Style.RESET_ALL}")
         if allow_empty and value.strip() == "":
             return None
         try:
@@ -81,7 +75,6 @@ def display_menu():
     return validate_number_input("Seçiminiz (1-3): ")
 
 def get_phone_numbers():
-    """Telefon numaralarını al: tek numara veya dosya."""
     print_banner()
     print(f"{Fore.LIGHTGREEN_EX}Telefon numarasını girin (10 haneli, +90 olmadan):{Style.RESET_ALL}")
     print(f"{Fore.LIGHTYELLOW_EX}Birden fazla numara için dosya yolunu girin veya boş bırakın:{Style.RESET_ALL}")
@@ -93,12 +86,12 @@ def get_phone_numbers():
         dizin = input(f"{Fore.LIGHTGREEN_EX}> ")
         try:
             with open(dizin, "r", encoding="utf-8") as f:
-                for line in f.read().strip().split("\n"):
+                for line in f.read().splitlines():
                     if line.strip():
-                        tel_liste.append(validate_phone(line.strip()))
+                        tel_liste.append(validate_phone(line))
             return tel_liste, True
         except FileNotFoundError:
-            print(f"{Fore.LIGHTRED_EX}Dosya bulunamadı! Lütfen geçerli bir dosya yolu girin.{Style.RESET_ALL}")
+            print(f"{Fore.LIGHTRED_EX}Dosya bulunamadı!{Style.RESET_ALL}")
             sleep(3)
             return None, False
     else:
@@ -111,7 +104,6 @@ def get_phone_numbers():
             return None, False
 
 def get_email():
-    """E-posta adresini al."""
     print_banner()
     print(f"{Fore.LIGHTGREEN_EX}E-posta adresini girin (boş bırakabilirsiniz):{Style.RESET_ALL}")
     while True:
@@ -120,15 +112,11 @@ def get_email():
         except ValueError as e:
             print(f"{Fore.LIGHTRED_EX}{e}{Style.RESET_ALL}")
             sleep(2)
-            print_banner()
-            print(f"{Fore.LIGHTGREEN_EX}E-posta adresini girin (boş bırakabilirsiniz):{Style.RESET_ALL}")
 
 def normal_sms():
-    """Normal mod: sırayla SMS gönderimi."""
-    tel_liste, is_infinite = get_phone_numbers()
+    tel_liste, _ = get_phone_numbers()
     if not tel_liste:
         return
-
     mail = get_email()
     print_banner()
     kere = validate_number_input("Kaç SMS gönderilsin? (Sonsuz için boş bırakın): ", allow_empty=True)
@@ -137,8 +125,7 @@ def normal_sms():
     print(f"{Fore.LIGHTCYAN_EX}Gönderim başlatılıyor...{Style.RESET_ALL}")
     for tel_no in tel_liste:
         sms = SendSms(tel_no, mail)
-        if not hasattr(sms, "adet"):
-            sms.adet = 0
+        sms.adet = 0
         try:
             if kere is None:
                 with tqdm(desc="Gönderilen SMS", unit=" SMS") as pbar:
@@ -166,7 +153,6 @@ def normal_sms():
     input(f"{Fore.LIGHTYELLOW_EX}Menüye dönmek için Enter tuşuna basın...{Style.RESET_ALL}")
 
 def turbo_sms():
-    """Turbo mod: eşzamanlı SMS gönderimi."""
     tel_liste, _ = get_phone_numbers()
     if not tel_liste:
         return
@@ -174,8 +160,7 @@ def turbo_sms():
     mail = get_email()
 
     send_sms = SendSms(tel_no, mail)
-    if not hasattr(send_sms, "adet"):
-        send_sms.adet = 0
+    send_sms.adet = 0
     stop_event = threading.Event()
 
     def turbo_loop():

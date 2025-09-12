@@ -25,7 +25,7 @@ init()
 
 # Yapımcı bilgileri
 YAPIMCI = "soytariomer.17"
-INSTAGRAM = "soytariomer.17"
+INSTAGRAM = "omer.17___"
 
 # SendSms sınıfındaki servisleri dinamik olarak çekme
 servisler_sms = [attr for attr in dir(SendSms) if callable(getattr(SendSms, attr)) and not attr.startswith('__')]

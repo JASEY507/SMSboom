@@ -1,11 +1,24 @@
-from colorama import init, Fore, Style
-from time import sleep
-from os import system
+import subprocess
+import sys
 import os
-from sms import SendSms
 import threading
 import re
-from tqdm import tqdm  # İlerleme çubuğu için
+from time import sleep
+from os import system
+
+# Gerekli modüller listesi
+required_modules = ["colorama", "tqdm"]
+for module in required_modules:
+    try:
+        __import__(module)
+    except ImportError:
+        print(f"{module} modülü yüklü değil, yükleniyor...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", module])
+
+# Şimdi importları yapıyoruz
+from colorama import init, Fore, Style
+from tqdm import tqdm
+from sms import SendSms  # sms.py dosyan olmalı
 
 # Colorama başlatma
 init()
@@ -83,7 +96,7 @@ def get_phone_numbers():
                 for line in f.read().strip().split("\n"):
                     if line.strip():
                         tel_liste.append(validate_phone(line.strip()))
-            return tel_liste, True  # True: sonsuz mod için
+            return tel_liste, True
         except FileNotFoundError:
             print(f"{Fore.LIGHTRED_EX}Dosya bulunamadı! Lütfen geçerli bir dosya yolu girin.{Style.RESET_ALL}")
             sleep(3)
@@ -91,7 +104,7 @@ def get_phone_numbers():
     else:
         try:
             tel_liste.append(validate_phone(tel_input))
-            return tel_liste, False  # False: tek numara
+            return tel_liste, False
         except ValueError as e:
             print(f"{Fore.LIGHTRED_EX}{e}{Style.RESET_ALL}")
             sleep(3)
@@ -125,7 +138,7 @@ def normal_sms():
     for tel_no in tel_liste:
         sms = SendSms(tel_no, mail)
         if not hasattr(sms, "adet"):
-            sms.adet = 0  # adet yoksa başlat
+            sms.adet = 0
         try:
             if kere is None:
                 with tqdm(desc="Gönderilen SMS", unit=" SMS") as pbar:
@@ -157,7 +170,7 @@ def turbo_sms():
     tel_liste, _ = get_phone_numbers()
     if not tel_liste:
         return
-    tel_no = tel_liste[0]  # Turbo modda sadece tek numara destekleniyor
+    tel_no = tel_liste[0]
     mail = get_email()
 
     send_sms = SendSms(tel_no, mail)

@@ -1,6 +1,7 @@
 from colorama import init, Fore, Style
 from time import sleep
 from os import system
+import os
 from sms import SendSms
 import threading
 import re
@@ -123,22 +124,31 @@ def normal_sms():
     print(f"{Fore.LIGHTCYAN_EX}Gönderim başlatılıyor...{Style.RESET_ALL}")
     for tel_no in tel_liste:
         sms = SendSms(tel_no, mail)
-        if kere is None:
-            with tqdm(desc="Gönderilen SMS", unit=" SMS") as pbar:
-                while True:
-                    for serv in servisler_sms:
-                        getattr(sms, serv)()
-                        pbar.update(1)
-                        sleep(aralik)
-        else:
-            with tqdm(total=kere, desc=f"{tel_no} için SMS", unit=" SMS") as pbar:
-                while sms.adet < kere:
-                    for serv in servisler_sms:
-                        if sms.adet >= kere:
-                            break
-                        getattr(sms, serv)()
-                        pbar.update(1)
-                        sleep(aralik)
+        if not hasattr(sms, "adet"):
+            sms.adet = 0  # adet yoksa başlat
+        try:
+            if kere is None:
+                with tqdm(desc="Gönderilen SMS", unit=" SMS") as pbar:
+                    while True:
+                        for serv in servisler_sms:
+                            getattr(sms, serv)()
+                            sms.adet += 1
+                            pbar.update(1)
+                            sleep(aralik)
+            else:
+                with tqdm(total=kere, desc=f"{tel_no} için SMS", unit=" SMS") as pbar:
+                    while sms.adet < kere:
+                        for serv in servisler_sms:
+                            if sms.adet >= kere:
+                                break
+                            getattr(sms, serv)()
+                            sms.adet += 1
+                            pbar.update(1)
+                            sleep(aralik)
+        except KeyboardInterrupt:
+            print(f"{Fore.LIGHTRED_EX}\nGönderim durduruldu. Toplam: {sms.adet} SMS{Style.RESET_ALL}")
+            sleep(2)
+            return
     print(f"{Fore.LIGHTGREEN_EX}Gönderim tamamlandı! Toplam: {sms.adet} SMS{Style.RESET_ALL}")
     input(f"{Fore.LIGHTYELLOW_EX}Menüye dönmek için Enter tuşuna basın...{Style.RESET_ALL}")
 
@@ -151,6 +161,8 @@ def turbo_sms():
     mail = get_email()
 
     send_sms = SendSms(tel_no, mail)
+    if not hasattr(send_sms, "adet"):
+        send_sms.adet = 0
     stop_event = threading.Event()
 
     def turbo_loop():
@@ -161,6 +173,7 @@ def turbo_sms():
                     t.start()
                 for t in threads:
                     t.join()
+                    send_sms.adet += 1
                 pbar.update(len(servisler_sms))
 
     print(f"{Fore.LIGHTCYAN_EX}Turbo gönderim başlatıldı. Durdurmak için CTRL+C tuşlayın.{Style.RESET_ALL}")

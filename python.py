@@ -1,4 +1,3 @@
-# sms_panel.py
 from colorama import init, Fore, Style
 from time import sleep
 import os
@@ -6,15 +5,16 @@ from os import system
 from sms import SendSms
 import threading
 import re
-from tqdm import tqdm
+from tqdm import tqdm  # İlerleme çubuğu için
 
-# Colorama başlat
+# Colorama başlatma
 init()
 
+# Yapımcı bilgileri
 YAPIMCI = "soytariomer.17"
 INSTAGRAM = "soytariomer.17"
 
-# SendSms içindeki servisleri dinamik olarak al
+# SendSms sınıfındaki servisleri dinamik olarak çekme
 servisler_sms = [attr for attr in dir(SendSms) if callable(getattr(SendSms, attr)) and not attr.startswith('__')]
 
 def clear_screen():
@@ -23,21 +23,23 @@ def clear_screen():
 def print_banner():
     clear_screen()
     banner = f"""
-{Fore.LIGHTCYAN_EX}{'═'*60}{Style.RESET_ALL}
+{Fore.LIGHTCYAN_EX}{'═' * 60}{Style.RESET_ALL}
 {Fore.LIGHTMAGENTA_EX}🎯 SMS Gönderim Paneli v2.0 🎯{Style.RESET_ALL}
-{Fore.LIGHTCYAN_EX}{'═'*60}{Style.RESET_ALL}
+{Fore.LIGHTCYAN_EX}{'═' * 60}{Style.RESET_ALL}
 {Fore.LIGHTYELLOW_EX}Yapımcı: {YAPIMCI} | Instagram: @{INSTAGRAM}{Style.RESET_ALL}
 {Fore.LIGHTCYAN_EX}Toplam Servis Sayısı: {len(servisler_sms)}{Style.RESET_ALL}
-{Fore.LIGHTCYAN_EX}{'═'*60}{Style.RESET_ALL}
+{Fore.LIGHTCYAN_EX}{'═' * 60}{Style.RESET_ALL}
 """
     print(banner)
 
 def validate_phone(phone):
+    """Telefon numarasını doğrula: 10 haneli ve sadece rakam."""
     if not phone.isdigit() or len(phone) != 10:
         raise ValueError("Telefon numarası 10 haneli olmalı ve sadece rakamlardan oluşmalı!")
     return phone
 
 def validate_email(email):
+    """E-posta adresini doğrula: basit regex kontrolü."""
     if email == "":
         return email
     if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
@@ -45,6 +47,7 @@ def validate_email(email):
     return email
 
 def validate_number_input(prompt, allow_empty=False):
+    """Sayısal girişi doğrula."""
     while True:
         print(f"{Fore.LIGHTYELLOW_EX}{prompt}{Style.RESET_ALL}", end="")
         value = input()
@@ -61,14 +64,16 @@ def display_menu():
     print(f"{Fore.LIGHTBLUE_EX}[1] SMS Gönder (Normal Mod)")
     print(f"[2] SMS Gönder (Turbo Mod)")
     print(f"[3] Çıkış")
-    print(f"{Fore.LIGHTCYAN_EX}{'═'*60}{Style.RESET_ALL}")
+    print(f"{Fore.LIGHTCYAN_EX}{'═' * 60}{Style.RESET_ALL}")
     return validate_number_input("Seçiminiz (1-3): ")
 
 def get_phone_numbers():
+    """Telefon numaralarını al: tek numara veya dosya."""
     print_banner()
     print(f"{Fore.LIGHTGREEN_EX}Telefon numarasını girin (10 haneli, +90 olmadan):{Style.RESET_ALL}")
     print(f"{Fore.LIGHTYELLOW_EX}Birden fazla numara için dosya yolunu girin veya boş bırakın:{Style.RESET_ALL}")
     tel_input = input(f"{Fore.LIGHTGREEN_EX}> ")
+
     tel_liste = []
     if tel_input.strip() == "":
         print(f"{Fore.LIGHTYELLOW_EX}Numaraların bulunduğu dosya yolunu girin:{Style.RESET_ALL}")
@@ -78,21 +83,22 @@ def get_phone_numbers():
                 for line in f.read().strip().split("\n"):
                     if line.strip():
                         tel_liste.append(validate_phone(line.strip()))
-            return tel_liste, True
+            return tel_liste, True  # True: sonsuz mod için
         except FileNotFoundError:
-            print(f"{Fore.LIGHTRED_EX}Dosya bulunamadı!{Style.RESET_ALL}")
+            print(f"{Fore.LIGHTRED_EX}Dosya bulunamadı! Lütfen geçerli bir dosya yolu girin.{Style.RESET_ALL}")
             sleep(3)
             return None, False
     else:
         try:
             tel_liste.append(validate_phone(tel_input))
-            return tel_liste, False
+            return tel_liste, False  # False: tek numara
         except ValueError as e:
             print(f"{Fore.LIGHTRED_EX}{e}{Style.RESET_ALL}")
             sleep(3)
             return None, False
 
 def get_email():
+    """E-posta adresini al."""
     print_banner()
     print(f"{Fore.LIGHTGREEN_EX}E-posta adresini girin (boş bırakabilirsiniz):{Style.RESET_ALL}")
     while True:
@@ -105,13 +111,16 @@ def get_email():
             print(f"{Fore.LIGHTGREEN_EX}E-posta adresini girin (boş bırakabilirsiniz):{Style.RESET_ALL}")
 
 def normal_sms():
+    """Normal mod: sırayla SMS gönderimi."""
     tel_liste, is_infinite = get_phone_numbers()
     if not tel_liste:
         return
+
     mail = get_email()
     print_banner()
     kere = validate_number_input("Kaç SMS gönderilsin? (Sonsuz için boş bırakın): ", allow_empty=True)
     aralik = validate_number_input("Gönderim aralığı (saniye): ")
+
     print(f"{Fore.LIGHTCYAN_EX}Gönderim başlatılıyor...{Style.RESET_ALL}")
     for tel_no in tel_liste:
         sms = SendSms(tel_no, mail)
@@ -135,20 +144,26 @@ def normal_sms():
     input(f"{Fore.LIGHTYELLOW_EX}Menüye dönmek için Enter tuşuna basın...{Style.RESET_ALL}")
 
 def turbo_sms():
+    """Turbo mod: eşzamanlı SMS gönderimi."""
     tel_liste, _ = get_phone_numbers()
     if not tel_liste:
         return
-    tel_no = tel_liste[0]
+    tel_no = tel_liste[0]  # Turbo modda sadece tek numara destekleniyor
     mail = get_email()
+
     send_sms = SendSms(tel_no, mail)
     stop_event = threading.Event()
+
     def turbo_loop():
         with tqdm(desc="Turbo Gönderim", unit=" SMS") as pbar:
             while not stop_event.is_set():
                 threads = [threading.Thread(target=getattr(send_sms, serv), daemon=True) for serv in servisler_sms]
-                for t in threads: t.start()
-                for t in threads: t.join()
+                for t in threads:
+                    t.start()
+                for t in threads:
+                    t.join()
                 pbar.update(len(servisler_sms))
+
     print(f"{Fore.LIGHTCYAN_EX}Turbo gönderim başlatıldı. Durdurmak için CTRL+C tuşlayın.{Style.RESET_ALL}")
     try:
         turbo_loop()
@@ -160,8 +175,10 @@ def turbo_sms():
 def main():
     while True:
         choice = display_menu()
-        if choice == 1: normal_sms()
-        elif choice == 2: turbo_sms()
+        if choice == 1:
+            normal_sms()
+        elif choice == 2:
+            turbo_sms()
         elif choice == 3:
             print_banner()
             print(f"{Fore.LIGHTRED_EX}Program kapatılıyor...{Style.RESET_ALL}")
@@ -172,4 +189,4 @@ def main():
             sleep(2)
 
 if __name__ == "__main__":
-    main()
+    main() 

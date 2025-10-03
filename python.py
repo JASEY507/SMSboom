@@ -8,7 +8,7 @@ import asyncio
 import concurrent.futures
 import re
 import platform
-from tqdm import tqdm  # İlerleme çubuğu için
+from tqdm import tqdm
 
 # Colorama başlatma
 init()
@@ -67,6 +67,15 @@ def validate_number_input(prompt, allow_empty=False, max_value=None):
             print(f"{Fore.LIGHTRED_EX}Hatalı giriş! Sadece sayı giriniz.{Style.RESET_ALL}")
             sleep(2)
 
+def display_menu():
+    print_banner()
+    print(f"{Fore.LIGHTBLUE_EX}[1] SMS Gönder (Normal Mod)")
+    print(f"[2] SMS Gönder (Turbo Mod)")
+    print(f"[3] SMS Gönder (HyperSonic Mod)")
+    print(f"[4] Çıkış")
+    print(f"{Fore.LIGHTCYAN_EX}{'═' * 60}{Style.RESET_ALL}")
+    return validate_number_input("Seçiminiz (1-4): ", max_value=4)
+
 def get_phone_numbers():
     """Telefon numaralarını al: tek numara veya dosya."""
     print_banner()
@@ -83,7 +92,7 @@ def get_phone_numbers():
                 for line in f.read().strip().split("\n"):
                     if line.strip():
                         tel_liste.append(validate_phone(line.strip()))
-            return tel_liste, True  # True: sonsuz mod için
+            return tel_liste, True
         except FileNotFoundError:
             print(f"{Fore.LIGHTRED_EX}Dosya bulunamadı! Lütfen geçerli bir dosya yolu girin.{Style.RESET_ALL}")
             sleep(3)
@@ -91,7 +100,7 @@ def get_phone_numbers():
     else:
         try:
             tel_liste.append(validate_phone(tel_input))
-            return tel_liste, False  # False: tek numara
+            return tel_liste, False
         except ValueError as e:
             print(f"{Fore.LIGHTRED_EX}{e}{Style.RESET_ALL}")
             sleep(3)
@@ -148,7 +157,7 @@ def turbo_sms():
     tel_liste, _ = get_phone_numbers()
     if not tel_liste:
         return
-    tel_no = tel_liste[0]  # Turbo modda sadece tek numara destekleniyor
+    tel_no = tel_liste[0]
     mail = get_email()
 
     send_sms = SendSms(tel_no, mail)
@@ -187,7 +196,6 @@ async def hypersonic_sms():
         return
     mail = get_email()
 
-    # Telefon numaralarını listele ve seçim yap
     print_banner()
     print(f"{Fore.LIGHTGREEN_EX}SMS gönderilecek numarayı seçin:{Style.RESET_ALL}")
     for i, tel_no in enumerate(tel_liste, 1):
@@ -196,7 +204,6 @@ async def hypersonic_sms():
     print(f"{Fore.LIGHTCYAN_EX}{'═' * 60}{Style.RESET_ALL}")
     choice = validate_number_input(f"Seçiminiz (1-{len(tel_liste) + 1}): ", max_value=len(tel_liste) + 1)
 
-    # Seçilen numaraları belirle
     if choice == len(tel_liste) + 1:
         selected_numbers = tel_liste
     else:
@@ -215,7 +222,6 @@ async def hypersonic_sms():
 
 def main():
     if platform.system() == "Emscripten":
-        # Pyodide ortamı için asenkron çalıştırma
         asyncio.ensure_future(hypersonic_sms())
     else:
         while True:

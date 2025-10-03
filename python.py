@@ -7,7 +7,7 @@ import threading
 import asyncio
 import concurrent.futures
 import re
-import platform  # Added platform import to fix NameError
+import platform
 from tqdm import tqdm  # İlerleme çubuğu için
 
 # Colorama başlatma
@@ -15,7 +15,7 @@ init()
 
 # Yapımcı bilgileri
 YAPIMCI = "soytariomer.17"
-INSTAGRAM = "omer.17___"
+INSTAGRAM = "soytariomer.17"
 
 # SendSms sınıfındaki servisleri dinamik olarak çekme
 servisler_sms = [attr for attr in dir(SendSms) if callable(getattr(SendSms, attr)) and not attr.startswith('__')]
@@ -27,7 +27,7 @@ def print_banner():
     clear_screen()
     banner = f"""
 {Fore.LIGHTCYAN_EX}{'═' * 60}{Style.RESET_ALL}
-{Fore.LIGHTMAGENTA_EX}🎯 SMS Gönderim Paneli v2.1 🎯{Style.RESET_ALL}
+{Fore.LIGHTMAGENTA_EX}🎯 SMS Gönderim Paneli v2.2 🎯{Style.RESET_ALL}
 {Fore.LIGHTCYAN_EX}{'═' * 60}{Style.RESET_ALL}
 {Fore.LIGHTYELLOW_EX}Yapımcı: {YAPIMCI} | Instagram: @{INSTAGRAM}{Style.RESET_ALL}
 {Fore.LIGHTCYAN_EX}Toplam Servis Sayısı: {len(servisler_sms)}{Style.RESET_ALL}
@@ -49,7 +49,7 @@ def validate_email(email):
         raise ValueError("Geçersiz e-posta adresi!")
     return email
 
-def validate_number_input(prompt, allow_empty=False):
+def validate_number_input(prompt, allow_empty=False, max_value=None):
     """Sayısal girişi doğrula."""
     while True:
         print(f"{Fore.LIGHTYELLOW_EX}{prompt}{Style.RESET_ALL}", end="")
@@ -57,19 +57,15 @@ def validate_number_input(prompt, allow_empty=False):
         if allow_empty and value.strip() == "":
             return None
         try:
-            return int(value)
+            num = int(value)
+            if max_value is not None and num > max_value:
+                print(f"{Fore.LIGHTRED_EX}Hatalı giriş! 1 ile {max_value} arasında bir sayı girin.{Style.RESET_ALL}")
+                sleep(2)
+                continue
+            return num
         except ValueError:
             print(f"{Fore.LIGHTRED_EX}Hatalı giriş! Sadece sayı giriniz.{Style.RESET_ALL}")
             sleep(2)
-
-def display_menu():
-    print_banner()
-    print(f"{Fore.LIGHTBLUE_EX}[1] SMS Gönder (Normal Mod)")
-    print(f"[2] SMS Gönder (Turbo Mod)")
-    print(f"[3] SMS Gönder (HyperSonic Mod)")
-    print(f"[4] Çıkış")
-    print(f"{Fore.LIGHTCYAN_EX}{'═' * 60}{Style.RESET_ALL}")
-    return validate_number_input("Seçiminiz (1-4): ")
 
 def get_phone_numbers():
     """Telefon numaralarını al: tek numara veya dosya."""
@@ -190,12 +186,27 @@ async def hypersonic_sms():
     if not tel_liste:
         return
     mail = get_email()
-    stop_event = asyncio.Event()
 
+    # Telefon numaralarını listele ve seçim yap
+    print_banner()
+    print(f"{Fore.LIGHTGREEN_EX}SMS gönderilecek numarayı seçin:{Style.RESET_ALL}")
+    for i, tel_no in enumerate(tel_liste, 1):
+        print(f"{Fore.LIGHTBLUE_EX}[{i}] {tel_no}")
+    print(f"{Fore.LIGHTBLUE_EX}[{len(tel_liste) + 1}] Tüm Numaralar")
+    print(f"{Fore.LIGHTCYAN_EX}{'═' * 60}{Style.RESET_ALL}")
+    choice = validate_number_input(f"Seçiminiz (1-{len(tel_liste) + 1}): ", max_value=len(tel_liste) + 1)
+
+    # Seçilen numaraları belirle
+    if choice == len(tel_liste) + 1:
+        selected_numbers = tel_liste
+    else:
+        selected_numbers = [tel_liste[choice - 1]]
+
+    stop_event = asyncio.Event()
     print(f"{Fore.LIGHTCYAN_EX}HyperSonic gönderim başlatıldı. Durdurmak için CTRL+C tuşlayın.{Style.RESET_ALL}")
     try:
         with tqdm(desc="HyperSonic Gönderim", unit=" SMS") as pbar:
-            tasks = [hypersonic_sms_single(tel_no, mail, stop_event, pbar) for tel_no in tel_liste]
+            tasks = [hypersonic_sms_single(tel_no, mail, stop_event, pbar) for tel_no in selected_numbers]
             await asyncio.gather(*tasks)
     except KeyboardInterrupt:
         stop_event.set()

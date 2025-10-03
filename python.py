@@ -7,6 +7,7 @@ import threading
 import asyncio
 import concurrent.futures
 import re
+import platform  # Added platform import to fix NameError
 from tqdm import tqdm  # İlerleme çubuğu için
 
 # Colorama başlatma
@@ -175,7 +176,7 @@ def turbo_sms():
         print(f"{Fore.LIGHTRED_EX}\nGönderim durduruldu. Toplam: {send_sms.adet} SMS{Style.RESET_ALL}")
         sleep(2)
 
-async def hypersionic_sms_single(tel_no, mail, stop_event, pbar):
+async def hypersonic_sms_single(tel_no, mail, stop_event, pbar):
     """HyperSonic mod: Tek numara için asenkron SMS gönderimi."""
     send_sms = SendSms(tel_no, mail)
     while not stop_event.is_set():
@@ -183,7 +184,7 @@ async def hypersionic_sms_single(tel_no, mail, stop_event, pbar):
         await asyncio.gather(*tasks)
         pbar.update(len(servisler_sms))
 
-async def hypersionic_sms():
+async def hypersonic_sms():
     """HyperSonic mod: Çoklu numara için ultra hızlı SMS gönderimi."""
     tel_liste, _ = get_phone_numbers()
     if not tel_liste:

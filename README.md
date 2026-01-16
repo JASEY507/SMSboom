@@ -74,12 +74,14 @@ if (-not (Test-Path .\SMSboom)) { git clone https://github.com/JASEY507/SMSboom.
 
 
 
+```
+<img width="1920" height="1080" alt="Ekran Görüntüsü (95)" src="https://github.com/user-attachments/assets/e3babc7b-089e-4f04-9693-00bd882c92b3" />
 
 
 
 
 
 
-
+```
 
 

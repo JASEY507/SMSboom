@@ -46,9 +46,8 @@ Kurulum
 
 𝐋𝐈̇𝐍𝐔𝐗
 
-'''bash
+```bash
 rm -rf SMSboom && git clone https://github.com/JASEY507/SMSboom.git && cd SMSboom && python3 -m venv .venv && . .venv/bin/activate && pip install --upgrade pip && pip install colorama tqdm requests && python3 python.py
--
 
 
 
@@ -67,11 +66,12 @@ rm -rf SMSboom && git clone https://github.com/JASEY507/SMSboom.git && cd SMSboo
 
 
 
+```
 𝙋𝙊𝙒𝙀𝙍𝙎𝙃𝙀𝙇𝙇
 
---
+```bash
 if (-not (Test-Path .\SMSboom)) { git clone https://github.com/JASEY507/SMSboom.git }; Set-Location .\SMSboom; if (-not (Test-Path .\.venv)) { python -m venv .venv }; Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force; & .\.venv\Scripts\Activate.ps1; pip install --disable-pip-version-check colorama requests fake_useragent pysocks urllib3 tqdm; python python.py
--
+
 
 
 

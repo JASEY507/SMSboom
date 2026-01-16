@@ -46,7 +46,7 @@ Kurulum
 
 𝐋𝐈̇𝐍𝐔𝐗
 
---
+"""bash
 rm -rf SMSboom && git clone https://github.com/JASEY507/SMSboom.git && cd SMSboom && python3 -m venv .venv && . .venv/bin/activate && pip install --upgrade pip && pip install colorama tqdm requests && python3 python.py
 -
 

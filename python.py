@@ -1,4 +1,3 @@
-cat > python.py << 'EOF'
 from colorama import init, Fore, Style
 from time import sleep
 import os
@@ -12,7 +11,6 @@ from tqdm import tqdm
 
 init()
 
-# ===================== AYARLAR =====================
 YAPIMCI = "soytariomer.17"
 INSTAGRAM = "soytariomer.17"
 
@@ -112,7 +110,6 @@ def log_failed_services(failed, tel_no):
             f.write(f"- {s}\n")
     print(f"{Fore.LIGHTYELLOW_EX}Başarısız servisler '{filename}' dosyasına kaydedildi.{Style.RESET_ALL}")
 
-# ==================== NORMAL MOD ====================
 def normal_sms():
     tel_liste, _ = get_phone_numbers()
     if not tel_liste: return
@@ -166,7 +163,7 @@ def main():
         if choice == 1:
             normal_sms()
         elif choice in (2, 3):
-            print(f"{Fore.LIGHTRED_EX}Bu mod henüz güncellenmedi. Normal Mod önerilir.{Style.RESET_ALL}")
+            print(f"{Fore.LIGHTRED_EX}Turbo ve HyperSonic modları şu an devre dışı.{Style.RESET_ALL}")
             sleep(2)
         elif choice == 4:
             print_banner()
@@ -176,4 +173,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-EOF
